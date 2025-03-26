@@ -1,4 +1,4 @@
-# Generate runner name with timestamp
+# Generate runner name with human-readable timestamp
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 RUNNER_NAME="railway-runner-${TIMESTAMP}"
 
