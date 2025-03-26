@@ -8,6 +8,12 @@ if [ -z "$REPO_URL" ] || [ -z "$RUNNER_TOKEN" ]; then
     exit 1
 fi
 
+# Ensure we have write permissions
+if [ ! -w "$(pwd)" ]; then
+    echo "Error: Current user does not have write permissions in the working directory."
+    exit 1
+fi
+
 # Configure the runner
 ./config.sh --url "$REPO_URL" \
     --token "$RUNNER_TOKEN" \

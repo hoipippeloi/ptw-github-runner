@@ -9,6 +9,7 @@ This repository contains a Docker-based GitHub Actions runner that can be deploy
 - Configurable runner labels
 - Persistent runner identity
 - Easy deployment on Railway
+- Pre-configured Railway template with required variables
 
 ## Prerequisites
 
@@ -27,11 +28,9 @@ This repository contains a Docker-based GitHub Actions runner that can be deploy
    - Click "New self-hosted runner"
    - Copy the configuration token
 
-4. In Railway, set the following environment variables:
-   - `REPO_URL`: Your GitHub repository URL (e.g., https://github.com/username/repo)
-   - `RUNNER_TOKEN`: The token you copied from GitHub
-   - `RUNNER_NAME` (optional): Custom name for your runner
-   - `RUNNER_LABELS` (optional): Comma-separated list of labels
+4. Railway will automatically detect the required variables from the `railway.toml` file:
+   - You'll be prompted to fill in `REPO_URL` and `RUNNER_TOKEN` before deployment
+   - Optional variables (`RUNNER_NAME` and `RUNNER_LABELS`) have default values
 
 ## Environment Variables
 
@@ -41,6 +40,17 @@ This repository contains a Docker-based GitHub Actions runner that can be deploy
 | RUNNER_TOKEN | Yes | GitHub Actions runner registration token |
 | RUNNER_NAME | No | Custom name for the runner (default: railway-runner) |
 | RUNNER_LABELS | No | Comma-separated list of labels (default: railway) |
+
+## Railway Template Configuration
+
+This repository includes a `railway.toml` file that configures:
+- Required variables that must be set before deployment
+- Default values for optional variables
+- Build and deployment settings
+- Health check configuration
+- Restart policy
+
+When deploying to Railway, you'll be prompted to fill in the required variables before the deployment can proceed.
 
 ## Usage
 
