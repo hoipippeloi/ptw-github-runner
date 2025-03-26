@@ -20,12 +20,21 @@ This repository contains a Docker-based GitHub Actions runner that can be deploy
 
 ## Quick Start
 
-1. Make sure this repository is public on GitHub
-2. Go to [Railway Dashboard](https://railway.app/dashboard)
-3. Click "New Project"
-4. Select "Deploy from GitHub repo"
-5. Find and select this repository
-6. Follow the prompts to set up your runner
+### For Users
+1. Go to [Railway Dashboard](https://railway.app/dashboard)
+2. Click "New Project"
+3. Select "Deploy from GitHub repo"
+4. Find and select this repository
+5. Follow the prompts to set up your runner
+
+### For Template Contributors
+1. Fork this repository
+2. Make your changes
+3. Test locally using Railway CLI:
+   ```bash
+   railway variables validate
+   ```
+4. Submit for approval through Railway support
 
 ## Manual Setup Instructions
 
