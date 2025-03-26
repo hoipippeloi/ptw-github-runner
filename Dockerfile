@@ -22,8 +22,11 @@ ENV AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache
 RUN useradd -m -d ${RUNNER_HOME} runner \
     && chown -R runner:runner ${RUNNER_HOME}
 
-# Create the runner directory
-RUN mkdir -p ${RUNNER_HOME}
+# Create the runner and toolcache directories with correct permissions
+RUN mkdir -p ${RUNNER_HOME} \
+    && mkdir -p ${AGENT_TOOLSDIRECTORY} \
+    && chown -R runner:runner ${AGENT_TOOLSDIRECTORY} \
+    && chmod -R 755 ${AGENT_TOOLSDIRECTORY}
 
 # Download and extract the runner package
 RUN curl -sSL "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz" -o actions-runner.tar.gz \
