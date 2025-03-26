@@ -22,25 +22,32 @@ if [ ! -w "$(pwd)" ]; then
     exit 1
 fi
 
-# Configure the runner
-log "Configuring runner..."
-./config.sh --url "$REPO_URL" \
-    --token "$RUNNER_TOKEN" \
-    --name "${RUNNER_NAME:-railway-runner}" \
-    --work _work \
-    --labels "${RUNNER_LABELS:-railway}" \
-    --unattended
+# Generate a unique runner name using timestamp and random string
+RUNNER_NAME="${RUNNER_NAME:-railway-runner-$(date +%s)-$(openssl rand -hex 4)}"
+log "Using runner name: $RUNNER_NAME"
+
+# Function to remove existing runner
+remove_existing_runner() {
+    log "Removing existing runner..."
+    ./config.sh remove --token "$RUNNER_TOKEN" --unattended || true
+}
+
+# Function to configure the runner
+configure_runner() {
+    log "Configuring runner..."
+    ./config.sh --url "$REPO_URL" \
+        --token "$RUNNER_TOKEN" \
+        --name "$RUNNER_NAME" \
+        --work _work \
+        --labels "${RUNNER_LABELS:-railway}" \
+        --unattended
+}
 
 # Function to reconfigure the runner on error
 reconfigure_runner() {
     log "Attempting to reconfigure the runner..."
-    ./config.sh remove --token "$RUNNER_TOKEN" --unattended
-    ./config.sh --url "$REPO_URL" \
-        --token "$RUNNER_TOKEN" \
-        --name "${RUNNER_NAME:-railway-runner}" \
-        --work _work \
-        --labels "${RUNNER_LABELS:-railway}" \
-        --unattended
+    remove_existing_runner
+    configure_runner
 }
 
 # Function to check runner status
@@ -53,6 +60,10 @@ check_runner_status() {
         return 1
     fi
 }
+
+# Initial setup
+remove_existing_runner
+configure_runner
 
 # Run the runner in a loop, reconfiguring if necessary
 while true; do
