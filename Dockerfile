@@ -40,6 +40,10 @@ RUN chmod +x ${RUNNER_HOME}/start.sh \
 # Set the working directory
 WORKDIR ${RUNNER_HOME}
 
+# Create log directory with proper permissions
+RUN mkdir -p ${RUNNER_HOME}/logs \
+    && chown -R runner:runner ${RUNNER_HOME}/logs
+
 # Switch to non-root user
 USER runner
 

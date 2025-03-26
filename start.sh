@@ -2,19 +2,28 @@
 # Exit on error
 set -e
 
+# Enable debug logging
+set -x
+
+# Function to log messages
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+}
+
 # Check for required environment variables
 if [ -z "$REPO_URL" ] || [ -z "$RUNNER_TOKEN" ]; then
-    echo "Error: REPO_URL and RUNNER_TOKEN must be set."
+    log "Error: REPO_URL and RUNNER_TOKEN must be set."
     exit 1
 fi
 
 # Ensure we have write permissions
 if [ ! -w "$(pwd)" ]; then
-    echo "Error: Current user does not have write permissions in the working directory."
+    log "Error: Current user does not have write permissions in the working directory."
     exit 1
 fi
 
 # Configure the runner
+log "Configuring runner..."
 ./config.sh --url "$REPO_URL" \
     --token "$RUNNER_TOKEN" \
     --name "${RUNNER_NAME:-railway-runner}" \
@@ -24,7 +33,7 @@ fi
 
 # Function to reconfigure the runner on error
 reconfigure_runner() {
-    echo "Attempting to reconfigure the runner..."
+    log "Attempting to reconfigure the runner..."
     ./config.sh remove --token "$RUNNER_TOKEN" --unattended
     ./config.sh --url "$REPO_URL" \
         --token "$RUNNER_TOKEN" \
@@ -34,20 +43,37 @@ reconfigure_runner() {
         --unattended
 }
 
+# Function to check runner status
+check_runner_status() {
+    if [ -f ".runner" ]; then
+        log "Runner configuration file exists"
+        return 0
+    else
+        log "Runner configuration file not found"
+        return 1
+    fi
+}
+
 # Run the runner in a loop, reconfiguring if necessary
 while true; do
+    log "Starting runner..."
     ./run.sh &
-    wait
-    echo "Runner exited. Checking exit code."
-
+    RUNNER_PID=$!
+    
+    wait $RUNNER_PID
+    EXIT_CODE=$?
+    
+    log "Runner exited with code $EXIT_CODE"
+    
     # Check the exit code. 1 and 2 are common errors that can be fixed by reconfiguring.
-    if [ $? -eq 1 ] || [ $? -eq 2 ]; then
+    if [ $EXIT_CODE -eq 1 ] || [ $EXIT_CODE -eq 2 ]; then
+        log "Runner exited with reconfigurable error code"
         reconfigure_runner
     else
-        echo "Runner exited with an unrecoverable error. Exiting."
+        log "Runner exited with unrecoverable error code"
         exit 1
     fi
 
-    echo "Restarting runner in 5 seconds..."
+    log "Restarting runner in 5 seconds..."
     sleep 5
 done 
