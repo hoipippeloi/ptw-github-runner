@@ -29,7 +29,7 @@ log "Using runner name: $RUNNER_NAME"
 # Function to remove existing runner
 remove_existing_runner() {
     log "Removing existing runner..."
-    ./config.sh remove --token "$RUNNER_TOKEN" --unattended || true
+    ./config.sh remove --token "$RUNNER_TOKEN" || true
 }
 
 # Function to configure the runner
