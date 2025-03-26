@@ -1,0 +1,38 @@
+FROM ubuntu:latest
+
+# Update and install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    jq \
+    unzip \
+    software-properties-common \
+    apt-transport-https \
+    ca-certificates \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up required environment variables
+ENV RUNNER_VERSION=2.311.0
+ENV RUNNER_ARCH=x64
+ENV RUNNER_HOME=/opt/actions-runner
+ENV AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache
+
+# Create the runner directory
+RUN mkdir -p ${RUNNER_HOME}
+
+# Download and extract the runner package
+RUN curl -sSL "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz" -o actions-runner.tar.gz \
+    && tar xzf actions-runner.tar.gz -C ${RUNNER_HOME} \
+    && rm actions-runner.tar.gz
+
+# Copy the startup script
+COPY start.sh ${RUNNER_HOME}/start.sh
+
+# Make the startup script executable
+RUN chmod +x ${RUNNER_HOME}/start.sh
+
+# Set the working directory
+WORKDIR ${RUNNER_HOME}
+
+# Define the entry point
+ENTRYPOINT ["./start.sh"] 

@@ -1,0 +1,29 @@
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Environment variables
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build
+dist/
+build/
+*.tar.gz
+
+# Railway
+.railway/ 
