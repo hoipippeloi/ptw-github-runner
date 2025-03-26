@@ -1,0 +1,49 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "./Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "./start.sh",
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 100,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  },
+  "name": "GitHub Actions Runner",
+  "slug": "github-actions-runner",
+  "description": "Self-hosted GitHub Actions runner that can be deployed on Railway. Perfect for running GitHub Actions workflows in a managed environment.",
+  "tags": [
+    "github",
+    "actions",
+    "ci",
+    "cd",
+    "runner",
+    "self-hosted"
+  ],
+  "website": "https://github.com/actions/runner",
+  "repository": "https://github.com/yourusername/github-runner",
+  "logo": "https://github.com/actions/runner/raw/main/docs/images/logo.png",
+  "variables": {
+    "REPO_URL": {
+      "description": "The URL of your GitHub repository (e.g., https://github.com/username/repo)",
+      "required": true
+    },
+    "RUNNER_TOKEN": {
+      "description": "GitHub Actions runner registration token from your repository settings",
+      "required": true,
+      "secret": true
+    },
+    "RUNNER_NAME": {
+      "description": "Custom name for your runner (default: railway-runner)",
+      "required": false,
+      "default": "railway-runner"
+    },
+    "RUNNER_LABELS": {
+      "description": "Comma-separated list of labels (default: railway)",
+      "required": false,
+      "default": "railway"
+    }
+  }
+} 

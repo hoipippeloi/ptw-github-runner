@@ -10,6 +10,7 @@ This repository contains a Docker-based GitHub Actions runner that can be deploy
 - Persistent runner identity
 - Easy deployment on Railway
 - Pre-configured Railway template with required variables
+- Available as an official Railway template
 
 ## Prerequisites
 
@@ -17,7 +18,16 @@ This repository contains a Docker-based GitHub Actions runner that can be deploy
 - A GitHub repository where you want to use the runner
 - GitHub repository admin access to generate runner tokens
 
-## Setup Instructions
+## Quick Start
+
+1. Make sure this repository is public on GitHub
+2. Go to [Railway Dashboard](https://railway.app/dashboard)
+3. Click "New Project"
+4. Select "Deploy from GitHub repo"
+5. Find and select this repository
+6. Follow the prompts to set up your runner
+
+## Manual Setup Instructions
 
 1. Fork this repository to your GitHub account
 
@@ -43,7 +53,11 @@ This repository contains a Docker-based GitHub Actions runner that can be deploy
 
 ## Railway Template Configuration
 
-This repository includes a `railway.toml` file that configures:
+This repository includes:
+- `railway.toml` for service configuration
+- `railway.json` for template metadata and marketplace listing
+
+The template provides:
 - Required variables that must be set before deployment
 - Default values for optional variables
 - Build and deployment settings
@@ -80,6 +94,10 @@ If the runner stops working:
 2. Verify the environment variables are set correctly
 3. Generate a new runner token in GitHub and update it in Railway
 4. The runner will automatically reconfigure if needed
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
