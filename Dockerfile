@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
     libgbm1 \
     libpango-1.0-0 \
     libcairo2 \
-    libasound2t64 \
+    libasound2 \
     libgtk-3-0 \
     # Node.js
     nodejs \
@@ -36,10 +36,19 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up required environment variables
-ENV RUNNER_VERSION=2.311.0
+# These can be overridden by Railway UI deployment variables
+ENV RUNNER_VERSION=2.314.1
 ENV RUNNER_ARCH=x64
 ENV RUNNER_HOME=/opt/actions-runner
 ENV AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache
+
+# The following variables must be provided through Railway UI:
+# - REPO_URL: GitHub repository URL (e.g., https://github.com/owner/repo)
+# - RUNNER_TOKEN: GitHub Actions runner registration token
+# 
+# Optional variables that can be provided through Railway UI:
+# - RUNNER_NAME: Custom name for the runner (auto-generated if not provided)
+# - RUNNER_LABELS: Custom labels for the runner (defaults to "railway")
 
 # Create a non-root user
 RUN useradd -m -d ${RUNNER_HOME} runner \
@@ -90,5 +99,6 @@ RUN npm init -y && \
 # Switch to non-root user
 USER runner
 
-# Define the entry point
+# Define the entry point 
+# This will use the variables provided in the Railway UI
 ENTRYPOINT ["./start.sh"] 

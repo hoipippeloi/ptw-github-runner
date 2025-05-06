@@ -9,16 +9,20 @@ healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
-[variables]
-REPO_URL = "https://github.com/your-username/your-repo"
-RUNNER_TOKEN = "your-github-runner-token"
-RUNNER_NAME = "railway-runner"
-RUNNER_LABELS = "railway"
-
+# These variables will be shown in the Railway UI deployment form
+# Users must provide actual values in the Railway dashboard before deployment
 [requiredVariables]
-REPO_URL = "The URL of your GitHub repository (e.g., https://github.com/username/repo)"
-RUNNER_TOKEN = "GitHub Actions runner registration token from your repository settings"
+REPO_URL = "The complete GitHub repository URL (format: https://github.com/owner/repo)"
+RUNNER_TOKEN = "GitHub Actions runner registration token from repository settings > Actions > Runners > New runner"
 
+# Optional variables with default values will be shown in the Railway UI
 [optionalVariables]
-RUNNER_NAME = "Custom name for your runner (default: railway-runner)"
-RUNNER_LABELS = "Comma-separated list of labels (default: railway)" 
+RUNNER_NAME = "Custom name for your runner (default: generated using timestamp and random ID)"
+RUNNER_LABELS = "Comma-separated list of runner labels (default: railway)"
+
+# These placeholders are used only as defaults in development
+# They will be overridden by the values provided in the Railway UI
+[variables]
+REPO_URL = "https://github.com/owner/repo"
+RUNNER_TOKEN = "your-github-runner-token"
+RUNNER_LABELS = "railway" 

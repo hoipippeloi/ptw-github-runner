@@ -1,113 +1,101 @@
-# GitHub Actions Runner on Railway
+# GitHub Actions Self-Hosted Runner for Railway
 
-This repository contains a Docker-based GitHub Actions runner that can be deployed on Railway. It provides a self-hosted runner environment for executing GitHub Actions workflows.
-
-## Features
-
-- Based on the official GitHub Actions runner
-- Automatic reconfiguration on token expiration
-- Configurable runner labels
-- Persistent runner identity
-- Easy deployment on Railway
-- Pre-configured Railway template with required variables
-- Available as an official Railway template
+This repository contains a Docker-based GitHub Actions runner that can be deployed to Railway.app. The runner automatically registers with your GitHub repository and can execute GitHub Actions workflows.
 
 ## Prerequisites
 
-- A Railway account
-- A GitHub repository where you want to use the runner
-- GitHub repository admin access to generate runner tokens
+1. A GitHub repository where you want to use self-hosted runners
+2. A Railway.app account
 
-## Quick Start
+## Setup Instructions
 
-### For Users
-1. Go to [Railway Dashboard](https://railway.app/dashboard)
-2. Click "New Project"
-3. Select "Deploy from GitHub repo"
-4. Find and select this repository
-5. Follow the prompts to set up your runner
+### Step 1: Generate a GitHub Runner Token
 
-### For Template Contributors
-1. Fork this repository
-2. Make your changes
-3. Test locally using Railway CLI:
-   ```bash
-   railway variables validate
-   ```
-4. Submit for approval through Railway support
+1. Go to your GitHub repository
+2. Navigate to Settings > Actions > Runners
+3. Click "New self-hosted runner"
+4. Make note of the repository URL and runner token shown in the instructions
+   - URL format: `https://github.com/owner/repo`
+   - Token format: `AXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
 
-## Manual Setup Instructions
+> **IMPORTANT**: Runner tokens expire after 1 hour. If you don't use the token within that time, you'll need to generate a new one.
 
-1. Fork this repository to your GitHub account
+### Step 2: Deploy to Railway
 
-2. Create a new project on Railway and connect it to your forked repository
+1. Click the "Deploy to Railway" button (if available) or create a new service from this repository
+2. You'll see a deployment form in the Railway UI with required variables to fill in:
+   - `REPO_URL`: Your GitHub repository URL (e.g., `https://github.com/owner/repo`)
+   - `RUNNER_TOKEN`: The registration token from Step 1
 
-3. In your GitHub repository:
-   - Go to Settings > Actions > Runners
-   - Click "New self-hosted runner"
-   - Copy the configuration token
+   ![Railway Deployment Form](https://docs.railway.app/assets/deploy-variables.png)
 
-4. Railway will automatically detect the required variables from the `railway.toml` file:
-   - You'll be prompted to fill in `REPO_URL` and `RUNNER_TOKEN` before deployment
-   - Optional variables (`RUNNER_NAME` and `RUNNER_LABELS`) have default values
+3. Optional variables will also be shown in the form:
+   - `RUNNER_LABELS`: Custom labels for your runner (default: `railway`)
+   - `RUNNER_NAME`: Custom name for your runner (default: auto-generated)
 
-## Environment Variables
+4. Click "Deploy" to start the deployment process once all required fields are filled
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| REPO_URL | Yes | GitHub repository URL |
-| RUNNER_TOKEN | Yes | GitHub Actions runner registration token |
-| RUNNER_NAME | No | Custom name for the runner (default: railway-runner) |
-| RUNNER_LABELS | No | Comma-separated list of labels (default: railway) |
+### Step 3: Verify Runner Registration
 
-## Railway Template Configuration
+1. After deployment, check the service logs in Railway to verify registration was successful
+2. In your GitHub repository, go to Settings > Actions > Runners to confirm the runner appears online
 
-This repository includes:
-- `railway.toml` for service configuration
-- `railway.json` for template metadata and marketplace listing
+## Troubleshooting
 
-The template provides:
-- Required variables that must be set before deployment
-- Default values for optional variables
-- Build and deployment settings
-- Health check configuration
-- Restart policy
+### Runner Registration Failed (404 Not Found)
 
-When deploying to Railway, you'll be prompted to fill in the required variables before the deployment can proceed.
+If you see a 404 error during registration, check the following:
 
-## Usage
+1. **Token expired**: GitHub runner tokens expire after 1 hour. Generate a new token and update the `RUNNER_TOKEN` environment variable in the Railway dashboard.
 
-1. Deploy the runner on Railway
-2. The runner will automatically register with your GitHub repository
-3. Use the runner in your workflows by adding the appropriate label:
+2. **Incorrect URL format**: The `REPO_URL` must be in the format `https://github.com/owner/repo`.
+
+3. **Permission issues**: Ensure you have admin access to the repository.
+
+### Runner Goes Offline Frequently
+
+The runner container includes retry logic, but if your runner goes offline frequently:
+
+1. Check the Railway logs for specific error messages
+2. Consider increasing Railway's resources for the service
+3. Update the `RUNNER_TOKEN` if it's been a long time since deployment
+
+## Using Your Self-Hosted Runner
+
+In your GitHub workflow files (`.github/workflows/*.yml`), specify your self-hosted runner:
 
 ```yaml
 jobs:
   build:
-    runs-on: self-hosted
-    # or use the railway label if you kept the default
-    runs-on: railway
+    runs-on: [self-hosted, railway]  # Use both "self-hosted" and your custom label
+    steps:
+      - uses: actions/checkout@v3
+      # ...other steps
 ```
+
+## Maintenance
+
+- **Updating the runner**: The runner version is defined in the Dockerfile. To update, change the `RUNNER_VERSION` environment variable and redeploy.
+- **Removing the runner**: To permanently remove the runner, delete the Railway service and go to GitHub repository settings to remove the offline runner.
+- **Updating environment variables**: You can update any environment variable in the Railway dashboard under your service's Variables tab.
+
+## Railway UI Features
+
+Railway provides a user-friendly interface for managing your deployment:
+
+- **Variables management**: Easily update environment variables through the UI
+- **Logs viewer**: Monitor your runner's logs in real-time
+- **Resource allocation**: Adjust CPU and memory allocation as needed
+- **Restart controls**: Restart your service if needed
 
 ## Security Considerations
 
-- Never commit the `RUNNER_TOKEN` to the repository
-- Use Railway's environment variables for sensitive data
-- Regularly rotate the runner token
-- Monitor runner activity in GitHub
+Self-hosted runners have access to the repository's secrets. Be mindful of the following security considerations:
 
-## Troubleshooting
-
-If the runner stops working:
-1. Check the Railway logs for error messages
-2. Verify the environment variables are set correctly
-3. Generate a new runner token in GitHub and update it in Railway
-4. The runner will automatically reconfigure if needed
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Only use self-hosted runners with private repositories you trust
+2. Consider using dedicated GitHub accounts with limited permissions
+3. Regularly update the runner image to get security patches
 
 ## License
 
-MIT License - See LICENSE file for details 
+[MIT License](LICENSE) 
