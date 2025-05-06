@@ -28,8 +28,7 @@ RUN apt-get update && apt-get install -y \
     libgbm1 \
     libpango-1.0-0 \
     libcairo2 \
-    libasound2 \
-    libatspi2.0-0 \
+    libasound2t64 \
     libgtk-3-0 \
     # Node.js
     nodejs \
