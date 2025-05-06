@@ -1,6 +1,8 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "./Dockerfile"
+# Validate environment variables during build
+buildCommand = "./validate-env.sh"
 
 [deploy]
 startCommand = "./start.sh"
@@ -9,9 +11,9 @@ healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
-# These variables will be shown in the Railway UI deployment form
-# Users must provide actual values in the Railway dashboard before deployment
-[requiredVariables]
+# IMPORTANT: These variables are REQUIRED and must be set before deployment
+# Railway will prompt for these during the deployment process
+[requiredEnvVars]
 REPO_URL = "The complete GitHub repository URL (format: https://github.com/owner/repo)"
 RUNNER_TOKEN = "GitHub Actions runner registration token from repository settings > Actions > Runners > New runner"
 
@@ -23,6 +25,4 @@ RUNNER_LABELS = "Comma-separated list of runner labels (default: railway)"
 # These placeholders are used only as defaults in development
 # They will be overridden by the values provided in the Railway UI
 [variables]
-REPO_URL = "https://github.com/owner/repo"
-RUNNER_TOKEN = "your-github-runner-token"
 RUNNER_LABELS = "railway" 

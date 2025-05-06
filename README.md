@@ -23,17 +23,21 @@ This repository contains a Docker-based GitHub Actions runner that can be deploy
 ### Step 2: Deploy to Railway
 
 1. Click the "Deploy to Railway" button (if available) or create a new service from this repository
-2. You'll see a deployment form in the Railway UI with required variables to fill in:
-   - `REPO_URL`: Your GitHub repository URL (e.g., `https://github.com/owner/repo`)
-   - `RUNNER_TOKEN`: The registration token from Step 1
+2. **IMPORTANT**: Before starting deployment, you MUST configure the required environment variables in the Railway UI:
+   - Click on the "Variables" tab in your newly created service
+   - Add the following required variables (deployment will fail without these):
+     - `REPO_URL`: Your GitHub repository URL (e.g., `https://github.com/owner/repo`)
+     - `RUNNER_TOKEN`: The registration token from Step 1
 
-   ![Railway Deployment Form](https://docs.railway.app/assets/deploy-variables.png)
+   ![Railway Variables Tab](https://docs.railway.app/assets/variables-tab.png)
 
 3. Optional variables will also be shown in the form:
    - `RUNNER_LABELS`: Custom labels for your runner (default: `railway`)
    - `RUNNER_NAME`: Custom name for your runner (default: auto-generated)
 
-4. Click "Deploy" to start the deployment process once all required fields are filled
+4. After setting the required variables, click "Deploy" to start the deployment process
+
+> **NOTE**: If you try to deploy without setting these variables, the deployment will fail with prominent error messages in the logs.
 
 ### Step 3: Verify Runner Registration
 
@@ -51,6 +55,15 @@ If you see a 404 error during registration, check the following:
 2. **Incorrect URL format**: The `REPO_URL` must be in the format `https://github.com/owner/repo`.
 
 3. **Permission issues**: Ensure you have admin access to the repository.
+
+### Deployment Failed with Missing Variables Error
+
+If you see an error about missing variables:
+
+1. Go to your service in the Railway dashboard
+2. Click on the "Variables" tab
+3. Add the required variables (`REPO_URL` and `RUNNER_TOKEN`)
+4. Redeploy the service
 
 ### Runner Goes Offline Frequently
 

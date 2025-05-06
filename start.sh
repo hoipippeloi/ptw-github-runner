@@ -10,22 +10,35 @@ log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
 }
 
+# Function to log prominent error messages
+error_log() {
+    echo "╔═════════════════════════════════════════════════════════════════╗"
+    echo "║                         ERROR                                   ║"
+    echo "╚═════════════════════════════════════════════════════════════════╝"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+    echo "╔═════════════════════════════════════════════════════════════════╗"
+    echo "║                 DEPLOYMENT FAILED                               ║"
+    echo "╚═════════════════════════════════════════════════════════════════╝"
+}
+
 # Check for required environment variables with more descriptive messages
 if [ -z "$REPO_URL" ]; then
-    log "Error: REPO_URL is not set. Please provide it in the Railway UI deployment variables."
-    log "Format should be: https://github.com/owner/repo"
+    error_log "REPO_URL is not set. This is a REQUIRED variable."
+    echo "Please configure this variable in Railway before deployment."
+    echo "Format should be: https://github.com/owner/repo"
     exit 1
 fi
 
 if [ -z "$RUNNER_TOKEN" ]; then
-    log "Error: RUNNER_TOKEN is not set. Please provide it in the Railway UI deployment variables."
-    log "Get this token from GitHub repository Settings > Actions > Runners > New self-hosted runner"
+    error_log "RUNNER_TOKEN is not set. This is a REQUIRED variable."
+    echo "Please configure this variable in Railway before deployment."
+    echo "Get this token from GitHub repository Settings > Actions > Runners > New self-hosted runner"
     exit 1
 fi
 
 # Ensure we have write permissions
 if [ ! -w "$(pwd)" ]; then
-    log "Error: Current user does not have write permissions in the working directory."
+    error_log "Current user does not have write permissions in the working directory."
     exit 1
 fi
 
@@ -47,9 +60,9 @@ fi
 
 # Validate REPO_URL format
 if [[ ! "$REPO_URL" =~ ^https://github.com/[^/]+/[^/]+$ ]]; then
-    log "Error: REPO_URL must be in the format https://github.com/owner/repo"
-    log "Current value: $REPO_URL"
-    log "Please update this in the Railway UI deployment variables"
+    error_log "REPO_URL must be in the format https://github.com/owner/repo"
+    echo "Current value: $REPO_URL"
+    echo "Please update this in the Railway UI deployment variables"
     exit 1
 fi
 
@@ -90,10 +103,10 @@ configure_runner() {
             log "Configuration failed with exit code $CONFIG_EXIT"
             
             if [ $CONFIG_EXIT -eq 404 ]; then
-                log "ERROR: Received 404 Not Found. This usually means:"
-                log "1. The RUNNER_TOKEN has expired (they expire after 1 hour)"
-                log "2. The REPO_URL is incorrect"
-                log "Please update these values in the Railway UI deployment variables"
+                error_log "Received 404 Not Found. This usually means:"
+                echo "1. The RUNNER_TOKEN has expired (they expire after 1 hour)"
+                echo "2. The REPO_URL is incorrect"
+                echo "Please update these values in the Railway UI deployment variables"
             fi
             
             if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
@@ -105,8 +118,8 @@ configure_runner() {
         ATTEMPT=$((ATTEMPT+1))
     done
     
-    log "Failed to configure runner after $MAX_ATTEMPTS attempts"
-    log "Please check the REPO_URL and RUNNER_TOKEN variables in the Railway UI"
+    error_log "Failed to configure runner after $MAX_ATTEMPTS attempts"
+    echo "Please check the REPO_URL and RUNNER_TOKEN variables in the Railway UI"
     return 1
 }
 
@@ -147,9 +160,9 @@ while [ $INIT_ATTEMPT -le $MAX_INIT_ATTEMPTS ]; do
         break
     else
         if [ $INIT_ATTEMPT -eq $MAX_INIT_ATTEMPTS ]; then
-            log "Failed to initialize runner after $MAX_INIT_ATTEMPTS attempts"
-            log "Please check your REPO_URL and RUNNER_TOKEN variables in the Railway UI"
-            log "REPO_URL: $REPO_URL"
+            error_log "Failed to initialize runner after $MAX_INIT_ATTEMPTS attempts"
+            echo "Please check your REPO_URL and RUNNER_TOKEN variables in the Railway UI"
+            echo "REPO_URL: $REPO_URL"
             exit 1
         fi
         
@@ -170,8 +183,8 @@ while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
     if ! check_runner_status; then
         log "Runner not properly configured, reconfiguring..."
         if ! configure_runner; then
-            log "Reconfiguration failed, exiting"
-            log "Please check the variables in the Railway UI and redeploy"
+            error_log "Reconfiguration failed, exiting"
+            echo "Please check the variables in the Railway UI and redeploy"
             exit 1
         fi
     fi
@@ -200,8 +213,8 @@ while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
             RESTART_COUNT=$((RESTART_COUNT+1))
             
             if [ $RESTART_COUNT -ge $MAX_RESTARTS ]; then
-                log "Maximum restart attempts reached, exiting"
-                log "Check Railway logs and update variables in the Railway UI if needed"
+                error_log "Maximum restart attempts reached, exiting"
+                echo "Check Railway logs and update variables in the Railway UI if needed"
                 exit 1
             fi
             ;;
@@ -211,6 +224,6 @@ while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
     sleep 30
 done
 
-log "Maximum runner restarts reached, exiting"
-log "Please check the Railway UI logs and update variables if needed"
+error_log "Maximum runner restarts reached, exiting"
+echo "Please check the Railway UI logs and update variables if needed"
 exit 1 
