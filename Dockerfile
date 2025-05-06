@@ -105,15 +105,16 @@ USER runner
 # Run the validation script to check for required environment variables
 # This will fail the build if required variables are not set
 SHELL ["/bin/bash", "-c"]
-RUN echo "Validating required environment variables..." && \
-    if [ -z "$REPO_URL" ] || [ -z "$RUNNER_TOKEN" ]; then \
-      echo "ERROR: Required environment variables REPO_URL and RUNNER_TOKEN must be set in Railway before deployment!"; \
-      echo "Please go to your Railway service, click on Variables tab, and set these values."; \
-      echo "Deployment will fail without these variables."; \
-      exit 1; \
-    else \
-      echo "Required environment variables are set."; \
-    fi
+# Moving the validation to runtime instead of build time
+# RUN echo "Validating required environment variables..." && \
+#     if [ -z "$REPO_URL" ] || [ -z "$RUNNER_TOKEN" ]; then \
+#       echo "ERROR: Required environment variables REPO_URL and RUNNER_TOKEN must be set in Railway before deployment!"; \
+#       echo "Please go to your Railway service, click on Variables tab, and set these values."; \
+#       echo "Deployment will fail without these variables."; \
+#       exit 1; \
+#     else \
+#       echo "Required environment variables are set."; \
+#     fi
 
 # Define the entry point 
 # This will use the variables provided in the Railway UI
