@@ -10,6 +10,30 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     git \
     openssl \
+    sudo \
+    # Playwright dependencies
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libdbus-1-3 \
+    libxkbcommon0 \
+    libatspi2.0-0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libasound2 \
+    libatspi2.0-0 \
+    libgtk-3-0 \
+    # Node.js
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up required environment variables
@@ -21,6 +45,15 @@ ENV AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache
 # Create a non-root user
 RUN useradd -m -d ${RUNNER_HOME} runner \
     && chown -R runner:runner ${RUNNER_HOME}
+
+# Add runner user to sudoers with NOPASSWD option
+RUN echo "runner ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Configure password for root user (empty password)
+RUN passwd -d root
+
+# Configure PAM to allow su without password
+RUN echo "auth sufficient pam_permit.so" > /etc/pam.d/su
 
 # Create the runner and toolcache directories with correct permissions
 RUN mkdir -p ${RUNNER_HOME} \
@@ -47,6 +80,13 @@ WORKDIR ${RUNNER_HOME}
 # Create log directory with proper permissions
 RUN mkdir -p ${RUNNER_HOME}/logs \
     && chown -R runner:runner ${RUNNER_HOME}/logs
+
+# Install Playwright as runner user
+USER runner
+RUN npm init -y && \
+    npm install playwright && \
+    npx playwright install --with-deps && \
+    npm rm playwright
 
 # Switch to non-root user
 USER runner
